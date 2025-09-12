@@ -16,7 +16,9 @@ func MainRouter() *http.ServeMux {
 
 	mux.HandleFunc("GET /products", handlers.GetProductsHandler)
 	mux.HandleFunc("GET /collections", handlers.GetCollectionsHandler)
-	mux.HandleFunc("GET /promotions", handlers.GetPromotionsHandler)	
+	mux.HandleFunc("GET /promotions", handlers.GetPromotionsHandler)
 
+	mux.HandleFunc("POST /products", handlers.AddProductsHandler)
+	mux.HandleFunc("POST /collections", handlers.AddCollectionsHandler)
 	return mux
 }

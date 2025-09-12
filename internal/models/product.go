@@ -5,12 +5,12 @@ import (
 )
 
 type Product struct {
-	ID           int       `json:"id,omitempty" db:"id,omiempty"`
-	Title        string    `json:"title" db:"title"`
-	Inventory    int       `json:"inventory" db:"inventory"`
-	LastUpdate   time.Time `json:"last_update" db:"last_update"`
-	CollectionID int       `json:"collection_id" db:"collection_id"`
-	Collection   *Collection
+	ID           int         `json:"id,omitempty" db:"id,omitempty"`
+	Breed        string      `json:"breed" db:"breed"`
+	AgeWeek      int         `json:"age_week" db:"age_week"`
+	PricePerHen  float32     `json:"price_per_hen" db:"price_per_hen"`
+	IsVaccinated bool        `json:"is_vaccinated" db:"is_vaccinated"`
+	LastUpdate   time.Time   `json:"last_update" db:"last_update"`
+	CollectionID int         `json:"collection_id" db:"collection_id"`
+	Collection   *Collection `json:"-"`
 }
-
-

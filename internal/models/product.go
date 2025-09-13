@@ -14,3 +14,12 @@ type Product struct {
 	CollectionID int         `json:"collection_id" db:"collection_id"`
 	Collection   *Collection `json:"-"`
 }
+
+type Review struct {
+	ID          int       `json:"id,omitempty" db:"id,omitempty"`
+	Product_id  int       `json:"product_id" db:"product_id"`
+	Name        string    `json:"name" db:"name"`
+	Description string    `json:"description" db:"description"`
+	Date        time.Time `json:"date" db:"date"`
+	Product     *Product  `json:"-"`
+}

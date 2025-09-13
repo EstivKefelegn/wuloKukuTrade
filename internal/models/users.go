@@ -2,12 +2,10 @@ package models
 
 import (
 	"database/sql"
-
-	"github.com/google/uuid"
 )
 
 type Users struct {
-	ID                  int            `json:"id,omitempty" db:"id,omitempty"`
+	ID                  string         `json:"id,omitempty" db:"id,omitempty"`
 	FirstName           string         `json:"first_name"  db:"first_name"`
 	LastName            string         `json:"last_name" db:"last_name"`
 	Email               string         `json:"email" db:"email"`
@@ -24,11 +22,11 @@ type Users struct {
 }
 
 type Address struct {
-	ID     uuid.UUID `json:"id,omitempty" db:"id,omiempty"`
-	Street string    `json:"street" db:"street"`
-	City   string    `json:"city" db:"city"`
-	UserID int       `json:"user_id" db:"user_id"`
-	User   *Users    `json:"-"`
+	ID     string `json:"id,omitempty" db:"id,omiempty"`
+	Street string `json:"street" db:"street"`
+	City   string `json:"city" db:"city"`
+	UserID int    `json:"user_id" db:"user_id"`
+	User   *Users `json:"-"`
 }
 
 type UpdatePasswordModel struct {

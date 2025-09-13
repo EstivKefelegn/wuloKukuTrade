@@ -5,6 +5,8 @@ import (
 	"chickenTrade/API/pkg/utils"
 	"fmt"
 	"net/http"
+
+	"github.com/google/uuid"
 )
 
 func GetProductsDBHandler(products []models.Product, r *http.Request) ([]models.Product, int, error) {
@@ -65,17 +67,17 @@ func AddProductsDBHandler(newProducts []models.Product) ([]models.Product, error
 
 	for i, product := range newProducts {
 		values := utils.GetStructValues(product)
-		res, err := stmt.Exec(values...)
+		_, err := stmt.Exec(values...)
 		if err != nil {
 			return nil, utils.ErrorHandler(err, "Invalid request")
 		}
 
-		id, err := res.LastInsertId()
-		if err != nil {
-			utils.ErrorHandler(err, "Couldnt fetch the ID")
-		}
+		// id, err := res.LastInsertId()
+		// if err != nil {
+		// 	utils.ErrorHandler(err, "Couldnt fetch the ID")
+		// }
 
-		product.ID = int(id)
+		product.ID = uuid.New().String()
 		addProducts[i] = product
 	}
 

@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+
+	"github.com/google/uuid"
 )
 
 func GetCollectionsDBHandler(collections []models.Collection, r *http.Request) ([]models.Collection, int, error) {
@@ -63,18 +65,18 @@ func AddCollectionDBHandler(newCollections []models.Collection) ([]models.Collec
 	for i, collection := range newCollections {
 		values := utils.GetStructValues(collection)
 		fmt.Println("Vals: ", values)
-		res, err := stmt.Exec(values...)
+		_, err := stmt.Exec(values...)
 
 		if err != nil {
 			return nil, utils.ErrorHandler(err, "Invalid request")
 		}
 
-		id, err := res.LastInsertId()
-		if err != nil {
-			utils.ErrorHandler(err, "Couldnt fetch the ID")
-		}
+		// id, err := res.LastInsertId()
+		// if err != nil {
+		// 	utils.ErrorHandler(err, "Couldnt fetch the ID")
+		// }
 
-		collection.ID = int(id)
+		collection.ID = uuid.New().String()
 		addCollection[i] = collection
 	}
 

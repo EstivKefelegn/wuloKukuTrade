@@ -54,7 +54,7 @@ func GetStructValues(model interface{}) []interface{} {
 	modelType := modelValue.Type()
 	values := []interface{}{}
 
-	for i := 0; i < modelType.NumField(); i++ {
+	for i := 0; i < modelType.NumField(); i++ {	
 		dbTag := modelType.Field(i).Tag.Get("db")
 		dbTag = strings.TrimSuffix(dbTag, ",omitempty")
 

@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 )
 
@@ -29,6 +30,27 @@ func GetProductsHandler(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(response)
+}
+
+func GetProductHandler(w http.ResponseWriter, r *http.Request) {
+	id := r.PathValue("id")
+	product, err := sqlconnect.GetOneProductDBHandler(id)
+	fmt.Println("Predouct: ", product)
+	if err != nil {
+		utils.ErrorHandler(err, "There is no product with this id")
+		return
+	}
+	response := struct {
+		Status string
+		Data   models.Product
+	}{
+		Status: "Success",
+		Data:   product,
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(response)
+
 }
 
 func AddProductsHandler(w http.ResponseWriter, r *http.Request) {
@@ -97,4 +119,97 @@ func AddProductsHandler(w http.ResponseWriter, r *http.Request) {
 
 	json.NewEncoder(w).Encode(response)
 
+}
+
+func UpdateProductHandler(w http.ResponseWriter, r *http.Request) {
+	id := r.PathValue("id")
+
+	var updatedProduct models.Product
+	err := json.NewDecoder(r.Body).Decode(&updatedProduct)
+	if err != nil {
+		utils.ErrorHandler(err, "Couldnt convert the incomming request")
+		return
+	}
+
+	updatedProductDB, err := sqlconnect.UpdateProductDBHandler(id, updatedProduct)
+	if err != nil {
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(updatedProductDB)
+}
+
+func PatchProductHandler(w http.ResponseWriter, r *http.Request) {
+	id := r.PathValue("id")
+
+	var updatedProduct map[string]interface{}
+	err := json.NewDecoder(r.Body).Decode(&updatedProduct)
+	if err != nil {
+		utils.ErrorHandler(err, "couldn't decode the comming data")
+		return
+	}
+
+	updatedProductDB, err := sqlconnect.PatchProductDBHandler(id, updatedProduct)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
+	json.NewEncoder(w).Encode(updatedProductDB)
+
+}
+
+func PatchProductsHandler(w http.ResponseWriter, r *http.Request) {
+	var updates []map[string]interface{}
+	err := json.NewDecoder(r.Body).Decode(&updates)
+	if err != nil {
+		utils.ErrorHandler(err, "couldn't parese the incomming requests")
+		return
+	}
+
+	updatedProducts, err := sqlconnect.PatchProductsDBHandler(w, updates)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
+	json.NewEncoder(w).Encode(updatedProducts)
+
+}
+
+func DeleteProductHandler(w http.ResponseWriter, r *http.Request) {
+	id := r.PathValue("id")
+	id, err := sqlconnect.DeleteProductDBHandler(w, id)
+	if err != nil {
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	response := struct {
+		Status string `json:"status"`
+		ID     string `json:"id"`
+	}{
+		Status: "Product Successfully deleted",
+		ID:     id,
+	}
+	json.NewEncoder(w).Encode(response)
+
+}
+
+func DeleteProductsHandler(w http.ResponseWriter, r *http.Request) {
+	var ids []string
+	err := json.NewDecoder(r.Body).Decode(&ids)
+	fmt.Println("ID's", ids)
+	if err != nil {
+		return
+	}
+
+	deletedIDs, err := sqlconnect.DeleteProductsDBHandler(w, ids)
+	if err != nil {
+		log.Println("Error: can't delete the products")
+		return
+	}
+
+	json.NewEncoder(w).Encode(deletedIDs)
 }

@@ -26,8 +26,19 @@ func GetFieldNames(model interface{}) []string {
 
 func CheckEmptyields(value interface{}) error {
 	val := reflect.ValueOf(value)
+	typ := val.Type()
+
 	for i:=0; i < val.NumField(); i++ {
 		field := val.Field(i)
+		fieldType := typ.Field(i)
+
+		jsonTag := fieldType.Tag.Get("json")
+
+		if strings.Contains(jsonTag, "omitempty") {
+			continue
+		}
+
+		fmt.Println("field:", field)
 		if field.Kind() == reflect.String && field.String() == "" {
 			return utils.ErrorHandler(errors.New("all fields aree required"), "all fields are reuired")
 		}

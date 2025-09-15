@@ -10,13 +10,13 @@ type Product struct {
 	AgeWeek      int         `json:"age_week" db:"age_week"`
 	PricePerHen  float32     `json:"price_per_hen" db:"price_per_hen"`
 	IsVaccinated bool        `json:"is_vaccinated" db:"is_vaccinated"`
-	LastUpdate   time.Time   `json:"last_update" db:"last_update"`
+	LastUpdate   string      `json:"last_update,omitempty" db:"last_update,omitempty"`
 	CollectionID string      `json:"collection_id" db:"collection_id"`
 	Collection   *Collection `json:"-"`
 }
 
 type Review struct {
-	ID          string       `json:"id,omitempty" db:"id,omitempty"`
+	ID          string    `json:"id,omitempty" db:"id,omitempty"`
 	Product_id  string    `json:"product_id" db:"product_id"`
 	Name        string    `json:"name" db:"name"`
 	Description string    `json:"description" db:"description"`

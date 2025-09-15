@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 )
 
@@ -29,6 +30,27 @@ func GetCollectionsHandler(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(response)
+}
+
+func GetCollectionHandler(w http.ResponseWriter, r *http.Request) {
+	id := r.PathValue("id")
+	collection, err := sqlconnect.GetCollectionDBHandler(id)
+	if err != nil {
+		utils.ErrorHandler(err, "There is no product found")
+		return
+	}
+
+	response := struct {
+		Status string
+		Data   models.Collection
+	}{
+		Status: "Success",
+		Data:   collection,
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(response)
+
 }
 
 func AddCollectionsHandler(w http.ResponseWriter, r *http.Request) {
@@ -94,6 +116,129 @@ func AddCollectionsHandler(w http.ResponseWriter, r *http.Request) {
 		Data:   addCollection,
 	}
 
+	json.NewEncoder(w).Encode(response)
+
+}
+
+func UpdateCollectionHandler(w http.ResponseWriter, r *http.Request) {
+	id := r.PathValue("id")
+	var updatedCollection models.Collection
+
+	err := json.NewDecoder(r.Body).Decode(&updatedCollection)
+	if err != nil {
+		log.Println("Couldnt decode the incomming request")
+		return
+	}
+	fmt.Println("ID:", id)
+	updatedCollectionDB, err := sqlconnect.UpdateCollectionDBHandler(id, updatedCollection)
+	if err != nil {
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(updatedCollectionDB)
+}
+
+func PactchCollectionHandler(w http.ResponseWriter, r *http.Request) {
+	id := r.PathValue("id")
+
+	var requestBody map[string]interface{}
+	err := json.NewDecoder(r.Body).Decode(&requestBody)
+
+	if err != nil {
+		// http.Error(w, "Couldnt padrse the incomming data", http.StatusBadRequest)
+		utils.ErrorHandler(err, "couldn't padrse the in comming data")
+		return
+	}
+
+	collection, err := sqlconnect.PatchCollectionDBHandler(id, requestBody)
+	if err != nil {
+		// http.Error(w, "Couldnt update the data", http.StatusInternalServerError)
+		utils.ErrorHandler(err, "couldn't padrse the in comming data")
+		return
+	}
+
+	response := struct {
+		Status string
+		Data   models.Collection
+	}{
+		Status: "Success",
+		Data:   collection,
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(response)
+
+}
+
+func PatchCollectionsHandler(w http.ResponseWriter, r *http.Request) {
+	var updates []map[string]interface{}
+	err := json.NewDecoder(r.Body).Decode(&updates)
+
+	if err != nil {
+		http.Error(w, "bad request", http.StatusBadRequest)
+		log.Fatal("Couldnt parse the incomming data", http.StatusBadRequest)
+		return
+	}
+	updatedCollections, err := sqlconnect.PatchCollectionsDBHandler(w, updates)
+	if err != nil {
+		http.Error(w, "internal server error", http.StatusInternalServerError)
+		log.Fatal("Couldnt update the  data", http.StatusInternalServerError)
+		return
+	}
+
+	response := struct {
+		Status string
+		Data   []models.Collection
+	}{
+		Status: "success",
+		Data: updatedCollections,
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(response)
+
+}
+
+
+
+
+func DeleteCollectionHandler(w http.ResponseWriter, r *http.Request)  {
+	id := r.PathValue("id")
+
+	DeletedID, err := sqlconnect.DeleteCollectionDBHandler(w, id)
+	if err != nil {
+		http.Error(w, "Couldn't delete the requested value", http.StatusInternalServerError)
+		log.Fatal("Couldnt delted the requested value", http.StatusInternalServerError)
+		return
+	}
+
+	
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(DeletedID)
+}
+
+func DeleteCollectionsHandler(w http.ResponseWriter, r *http.Request)  {
+	var deltedIDs []string
+
+	json.NewDecoder(r.Body).Decode(&deltedIDs)
+
+	deletedIds, err := sqlconnect.DeleteCollectionsDBHandler(w, deltedIDs)
+	if err != nil {
+		http.Error(w, "couldn't delete the reuested values", http.StatusInternalServerError)
+		log.Fatalln("couldn't delete the requested values")
+		return
+	}
+
+	response := struct{
+		Status string
+		Data []string
+	}{
+		Status: "Success",
+		Data: deletedIds,
+	}
+
+	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(response)
 
 }

@@ -16,7 +16,8 @@ func GenerateInsertQuery(tableName string, model interface{}) string {
 		fmt.Println("The tag", dbTag)
 
 		dbTag = strings.TrimSuffix(dbTag, ",omitempty")
-		if dbTag != "" && dbTag != "id" {
+		if dbTag != "" {
+			// if dbTag != "" && dbTag != "id" {
 			if columns != "" {
 				columns += ", "
 				placeholders += ", "
@@ -41,7 +42,6 @@ func GenerateInsertQuery(tableName string, model interface{}) string {
 // 		if dbTag != "" && dbTag != "id" {
 // 			values = append(values, modelValue.Field(i).Interface())
 // 		}
-		
 
 // 	}
 
@@ -49,21 +49,21 @@ func GenerateInsertQuery(tableName string, model interface{}) string {
 // 	return values
 // }
 
-
 func GetStructValues(model interface{}) []interface{} {
-    modelValue := reflect.ValueOf(model)
-    modelType := modelValue.Type()
-    values := []interface{}{}
+	modelValue := reflect.ValueOf(model)
+	modelType := modelValue.Type()
+	values := []interface{}{}
 
-    for i := 0; i < modelType.NumField(); i++ {
-        dbTag := modelType.Field(i).Tag.Get("db")
-        dbTag = strings.TrimSuffix(dbTag, ",omitempty")
+	for i := 0; i < modelType.NumField(); i++ {
+		dbTag := modelType.Field(i).Tag.Get("db")
+		dbTag = strings.TrimSuffix(dbTag, ",omitempty")
 
-        if dbTag != "" && dbTag != "id" {
-            values = append(values, modelValue.Field(i).Interface())
-        }
-    }
+		// if dbTag != "" && dbTag != "id" {
+		if dbTag != "" {
+			values = append(values, modelValue.Field(i).Interface())
+		}
+	}
 
-    log.Println("Values:", values)
-    return values
+	log.Println("Values:", values)
+	return values
 }
